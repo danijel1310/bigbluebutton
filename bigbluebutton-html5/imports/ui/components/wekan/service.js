@@ -5,6 +5,15 @@ export const wekanLogin = () => {
     const meeting = Auth.fullInfo;
     console.log(meeting);
 } */
+const getAdmintoken = async () => {
+    const adminUser = await login("admin", "implUser");
+
+    if (adminUser && typeof adminUser === "object") {
+        return adminUser.token;
+    } else {
+        return undefined;
+    }
+}
 
 export const login = async (name, password) => {
     const inputBody = `username=${name}&password=${password}`;
@@ -69,15 +78,12 @@ export const register = async (email, name, password) => {
     }
 };
 
-export const getAllBoardsFromUser = async(userID) => {
-    const adminUser = await login("nino.heinzle@hotmail.com", "implUser");
-
-    let token;
-    if (adminUser && typeof adminUser === "object") {
-        token = adminUser.token;
-    } else {
-        return "Adminlogin failed";
+export const getAllBoardsFromUser = async (userID) => {
+    const token = await getAdmintoken();
+    if (!token) {
+        return 'Admin login failed';
     }
+
     const headers = {
         Authorization: `Bearer ${token}`,
         Accept: 'application/json',
@@ -109,13 +115,9 @@ export const getAllBoardsFromUser = async(userID) => {
 };
 
 export const createNewBoard = async (boardTitle, ownerId, permission, color) => {
-    const adminUser = await login("nino.heinzle@hotmail.com", "implUser");
-
-    let token;
-    if (adminUser && typeof adminUser === "object") {
-        token = adminUser.token;
-    } else {
-        return "Adminlogin failed";
+    const token = await getAdmintoken();
+    if (!token) {
+        return 'Admin login failed';
     }
     const input = {
         title: boardTitle,
@@ -141,7 +143,7 @@ export const createNewBoard = async (boardTitle, ownerId, permission, color) => 
             if (res.status === 200) {
                 //await WekanService.addParticipantsToBoard(body._id,false,false,false,true);
                 console.log(body);
-                return {title: boardTitle,id:body._id};
+                return { title: boardTitle, id: body._id };
             } else if (res.status === 400) {
                 return body.reason;
             } else {
@@ -156,18 +158,12 @@ export const createNewBoard = async (boardTitle, ownerId, permission, color) => 
 
 export const createWekanLink = (boardName, boardId) => `https://pfaender.fairteaching.net/wekan/b/${boardId}/${boardName}`;
 
-export const addParticipantsToBoard = async (boardID, isAdmin, isNoComments, isCommentOnly, isWorker) => {
-    const adminUser = await login('nino.heinzle@hotmail.com', 'implUser');
-
-    let token = '';
-    if (adminUser && typeof adminUser === 'object') {
-        token = adminUser.token;
-    } else {
-        return 'Adminlogin failed';
+export const addParticipantsToBoard = async (boardID, participants, isAdmin, isNoComments, isCommentOnly, isWorker) => {
+    const token = await getAdmintoken();
+    if (!token) {
+        return 'Admin login failed';
     }
-
-
-    const participants = new Array();
+    /* const participants = new Array();
 
     participants.push({
         name: 'test1', password: 'test1', id: 'zaRkQLWcG4C4H2ma4', token: '2xpzrYZrLky9gXprsuzGqU_n8QQuq5hJKpxYBQR3aHd',
@@ -180,14 +176,14 @@ export const addParticipantsToBoard = async (boardID, isAdmin, isNoComments, isC
     });
     participants.push({
         name: 'amkUser', password: 'amkUser', id: 'nrZSLx3EnvRp53sqJ', token: 'wPaFjWhcvDwqpjG0N8QtwjQRyKAl2c6iVrWdgWRJbdB',
-    });
+    }); */
 
 
     const result = new Array();
     participants.forEach(async (participant) => {
         const resultFetch = await fetchAddUserToBoard(
             boardID,
-            participant,
+            participant.value,
             isAdmin,
             isNoComments,
             isCommentOnly,
@@ -197,7 +193,7 @@ export const addParticipantsToBoard = async (boardID, isAdmin, isNoComments, isC
         if (resultFetch) {
             const scndTry = await fetchAddUserToBoard(
                 boardID,
-                participant,
+                participant.value,
                 isAdmin,
                 isNoComments,
                 isCommentOnly,
@@ -213,7 +209,7 @@ export const addParticipantsToBoard = async (boardID, isAdmin, isNoComments, isC
     return result;
 };
 
-const fetchAddUserToBoard = async (boardID, participant, isAdmin, isNoComments, isCommentOnly, isWorker, adminToken) => {
+const fetchAddUserToBoard = async (boardID, participantID, isAdmin, isNoComments, isCommentOnly, isWorker, adminToken) => {
     const input = {
         action: 'add',
         isAdmin,
@@ -230,7 +226,7 @@ const fetchAddUserToBoard = async (boardID, participant, isAdmin, isNoComments, 
     };
 
     return fetch(
-        `https://pfaender.fairteaching.net/wekan/api/boards/${boardID}/members/${participant.id}/add/`,
+        `https://pfaender.fairteaching.net/wekan/api/boards/${boardID}/members/${participantID}/add/`,
         {
             method: 'POST',
             mode: 'cors',
@@ -245,7 +241,7 @@ const fetchAddUserToBoard = async (boardID, participant, isAdmin, isNoComments, 
                 return undefined;
             } if (res.status === 400) {
                 console.log(res);
-                return participant;
+                return participantID;
             }
         })
         .catch((error) => {
@@ -254,14 +250,10 @@ const fetchAddUserToBoard = async (boardID, participant, isAdmin, isNoComments, 
 };
 
 export const getAllWekanUser = async () => {
-   
-    const adminUser = await login('nino.heinzle@hotmail.com', 'implUser');
 
-    let token = '';
-    if (adminUser && typeof adminUser === 'object') {
-        token = adminUser.token;
-    } else {
-        return 'Adminlogin failed';
+    const token = await getAdmintoken();
+    if (!token) {
+        return 'Admin login failed';
     }
 
     const headers = {

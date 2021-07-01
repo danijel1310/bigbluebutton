@@ -5,7 +5,7 @@ import { withModalMounter } from '/imports/ui/components/modal/service';
 import { defineMessages, injectIntl } from 'react-intl';
 import { styles } from './styles';
 import { getAllWekanUser, createWekanLink, addParticipantsToBoard, getAllBoardsFromUser, createNewBoard } from '/imports/ui/components/wekan/service';
-
+import MultiSelect from "react-multi-select-component";
 
 const intlMessages = defineMessages({
     title: {
@@ -25,15 +25,18 @@ class WekanModal extends Component {
         super(props);
 
         this.state = {
-            loginUser: {},
+            loginUser: undefined,
             boardType: 'login',
             nameOfNewBoard: '',
-            permissionType: 'private',
+            permissionType: 'public',
             boardColor: 'belize',
             boardList: new Array(),
             selectedBoard: '',
             emailInput: '',
-            allWekanUser: new Array()
+            allWekanUser: new Array(),
+            allWekanUserLabels: new Array(),
+            wekanLink: '',
+            allSelectedWekanUserLabels: new Array()
         };
 
         // const { wekanUrl } = props;
@@ -44,7 +47,13 @@ class WekanModal extends Component {
         this.selectedBoardHandler = this.selectedBoardHandler.bind(this);
         this.boardColorHandler = this.boardColorHandler.bind(this);
         this.emailInputHandler = this.emailInputHandler.bind(this);
+        this.allWekanUserLabelsHandler = this.allWekanUserLabelsHandler.bind(this);
+        this.allSelectedWekanUserLabelsHandler = this.allSelectedWekanUserLabelsHandler.bind(this);
         this.resetStates = this.resetStates.bind(this);
+        this.handleSignIn = this.handleSignIn.bind(this);
+        this.wekanLinkHandler = this.wekanLinkHandler.bind(this);
+        this.handleSetPermissions = this.handleSetPermissions.bind(this);
+        //this.createAllWekanUserLabels = this.createAllWekanUserLabels(this);
         //this.wekanLogin = this.wekanLogin.bind(this);
         //this.wekanLogin();
 
@@ -63,18 +72,26 @@ class WekanModal extends Component {
           console.log(allUser);
       } */
 
+    allWekanUserLabelsHandler(allwekanuserlabels) {
+        this.setState({ allWekanUserLabels: allwekanuserlabels });
+    }
+
+    allSelectedWekanUserLabelsHandler(selectedLabels) {
+        console.log(selectedLabels);
+        this.setState({ allSelectedWekanUserLabels: selectedLabels });
+    }
+
     async handleSignIn() {
         const {
-            emailInput,
-            allWekanUser
+            emailInput
         } = this.state;
 
-        let allUser;
-        if (allWekanUser.length < 1)
-            allUser = await getAllWekanUser();
+
+        const allUser = await getAllWekanUser();
 
         this.setState({ allWekanUser: allUser });
-        allWekanUser.forEach(user => {
+
+        allUser.forEach(user => {
             if (user.username === emailInput) {
                 this.setState({ loginUser: { username: user.username, id: user.id } });
             }
@@ -86,9 +103,28 @@ class WekanModal extends Component {
         if (loginUser) {
             const boardsOfUser = await getAllBoardsFromUser(loginUser.id);
             this.setState({ boardList: boardsOfUser });
+            this.setState({ boardType: 'new' });
+        }
+
+        this.createAllWekanUserLabels();
+    }
+
+    createAllWekanUserLabels() {
+        const {
+            allWekanUser
+        } = this.state;
+        if (allWekanUser) {
+            const labelArray = new Array();
+            allWekanUser.forEach((user) => {
+                labelArray.push({ label: user.username, value: user.id });
+            });
+            this.allWekanUserLabelsHandler(labelArray);
         }
     }
 
+    wekanLinkHandler(link) {
+        this.setState({ wekanLink: link })
+    }
     emailInputHandler(ev) {
         this.setState({ emailInput: ev.target.value })
     }
@@ -144,7 +180,10 @@ class WekanModal extends Component {
                 selectedBoard.title,
                 selectedBoard.id
             );
-            addParticipantsToBoard(
+            this.wekanLinkHandler(link);
+            this.setState({ boardType: 'permission' });
+            return;
+            /* addParticipantsToBoard(
                 selectedBoard.id,
                 false,
                 false,
@@ -157,7 +196,7 @@ class WekanModal extends Component {
                 }
                 // TODO props.setSource(link);
                 alert(link);
-            }).catch((error) => console.error(error));
+            }).catch((error) => console.error(error)); */
         } else {
             if (loginUser) {
                 createNewBoard(
@@ -168,7 +207,12 @@ class WekanModal extends Component {
                 )
                     .then((board) => {
                         if (board && typeof board === 'object') {
-                            addParticipantsToBoard(
+
+                            const link = createWekanLink(board.title, board.id);
+                            this.wekanLinkHandler(link);
+                            this.setState({selectedBoard: board});
+                            this.setState({ boardType: 'permission' });
+                            /* addParticipantsToBoard(
                                 board.id,
                                 false,
                                 false,
@@ -182,7 +226,7 @@ class WekanModal extends Component {
                                 }
                                 const link = createWekanLink(nameOfNewBoard, board.id);
                                 // TODO props.setSource(link);
-                            }).catch((error) => console.error(error));
+                            }).catch((error) => console.error(error)); */
                         }
                     })
                     .catch(() => console.error("CREATE NEW BOARD ERROR"));
@@ -190,6 +234,19 @@ class WekanModal extends Component {
         }
 
         this.resetStates();
+    }
+
+    async handleSetPermissions() {
+        const {
+            allSelectedWekanUserLabels,
+            selectedBoard,
+            wekanLink
+        } = this.state;
+
+        console.log(allSelectedWekanUserLabels);
+        if(allSelectedWekanUserLabels)
+        await addParticipantsToBoard(selectedBoard.id,allSelectedWekanUserLabels,false,false,false,true);
+        alert(wekanLink);
     }
 
     render() {
@@ -203,7 +260,10 @@ class WekanModal extends Component {
             boardColor,
             selectedBoard,
             boardList,
-            emailInput
+            emailInput,
+            wekanLink,
+            allWekanUserLabels,
+            allSelectedWekanUserLabels
         } = this.state;
 
         return (
@@ -222,7 +282,7 @@ class WekanModal extends Component {
                     <div className={styles.content}>
 
                         <div>
-                            {boardType !== 'login' &&
+                            {boardType !== 'login' && boardType !== 'permission' &&
 
                                 <select value={boardType} onChange={this.boardTypeHandler}>
                                     <option value="new">New</option>
@@ -236,9 +296,9 @@ class WekanModal extends Component {
                                 <div>
                                     <input
                                         value={emailInput}
-                                        onChange={this.emailInputHandler()}
+                                        onChange={this.emailInputHandler}
                                     />
-                                    <Button onClick={this.handleSignIn}>Sign in</Button>
+                                    <Button label="Sign in" onClick={this.handleSignIn} />
                                 </div>
                             )}
                             {boardType === 'new' && (
@@ -281,11 +341,28 @@ class WekanModal extends Component {
                                     </select>
                                 )
                             }
-                        </div>
-                        <div>
-                            <Button onClick={() => this.handleSave()} label="Save" />
+
+                            {boardType === 'permission' && selectedBoard && wekanLink && allWekanUserLabels &&
+
+                                <div>
+                                    <h3>Set permissions for this user</h3>
+                                    <MultiSelect
+                                    options={allWekanUserLabels}
+                                    value={allSelectedWekanUserLabels}
+                                    onChange={this.allSelectedWekanUserLabelsHandler}
+                                    labelledBy="Select"
+                                />
+                                    <Button onClick={this.handleSetPermissions} label="Set Permissions" />
+                                </div>
+                            }
                         </div>
 
+                        {
+                            boardType === 'list' || boardType === 'new' &&
+                            <div>
+                                <Button onClick={() => this.handleSave()} label="Save" />
+                            </div>
+                        }
                     </div>
                 </Modal>
             </>

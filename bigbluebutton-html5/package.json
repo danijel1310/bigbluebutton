@@ -63,6 +63,7 @@
     "react-dropzone": "^7.0.1",
     "react-intl": "^3.12.1",
     "react-modal": "~3.6.1",
+    "react-multi-select-component": "^4.0.2",
     "react-player": "^2.9.0",
     "react-render-in-browser": "^1.1.1",
     "react-tabs": "^2.3.1",
