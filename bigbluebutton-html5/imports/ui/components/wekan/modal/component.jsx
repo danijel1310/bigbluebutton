@@ -53,32 +53,31 @@ class WekanModal extends Component {
         this.handleSignIn = this.handleSignIn.bind(this);
         this.wekanLinkHandler = this.wekanLinkHandler.bind(this);
         this.handleSetPermissions = this.handleSetPermissions.bind(this);
-        //this.createAllWekanUserLabels = this.createAllWekanUserLabels(this);
-        //this.wekanLogin = this.wekanLogin.bind(this);
-        //this.wekanLogin();
+        this.getBoardById = this.getBoardById.bind(this);
 
 
 
     }
-
-    /*   async wekanLogin() {
-  
-          const loginuser = await login('implUser', 'implUser');
-          const boardsOfUser = await getAllBoardsFromUser(loginuser.id, loginuser.token);
-  
-          this.setState({ boardList: boardsOfUser });
-          this.setState({ loginUser: loginuser });
-          const allUser = await getAllWekanUser();
-          console.log(allUser);
-      } */
 
     allWekanUserLabelsHandler(allwekanuserlabels) {
         this.setState({ allWekanUserLabels: allwekanuserlabels });
     }
 
     allSelectedWekanUserLabelsHandler(selectedLabels) {
-        console.log(selectedLabels);
         this.setState({ allSelectedWekanUserLabels: selectedLabels });
+    }
+
+    getBoardById(id) {
+        const { boardList } = this.state;
+
+        let matchedBoard;
+        boardList.forEach(board => {
+            if (board.id === id) {
+                matchedBoard = board;
+            }
+        });
+
+        return matchedBoard;
     }
 
     async handleSignIn() {
@@ -176,27 +175,14 @@ class WekanModal extends Component {
 
 
         if (selectedBoard && boardType === 'list') {
+            const board = await this.getBoardById(selectedBoard);
             const link = createWekanLink(
-                selectedBoard.title,
-                selectedBoard.id
+                board.title,
+                board.id
             );
             this.wekanLinkHandler(link);
             this.setState({ boardType: 'permission' });
             return;
-            /* addParticipantsToBoard(
-                selectedBoard.id,
-                false,
-                false,
-                false,
-                true
-            ).then((participants) => {
-                if (participants) {
-                    console.log("this participants could not be added to board");
-                    console.log(participants);
-                }
-                // TODO props.setSource(link);
-                alert(link);
-            }).catch((error) => console.error(error)); */
         } else {
             if (loginUser) {
                 createNewBoard(
@@ -210,23 +196,8 @@ class WekanModal extends Component {
 
                             const link = createWekanLink(board.title, board.id);
                             this.wekanLinkHandler(link);
-                            this.setState({selectedBoard: board});
+                            this.setState({ selectedBoard: board });
                             this.setState({ boardType: 'permission' });
-                            /* addParticipantsToBoard(
-                                board.id,
-                                false,
-                                false,
-                                false,
-                                true
-                            ).then((participants) => {
-                                if (participants) {
-                                    console.log("this participants could not be added to board");
-                                    console.log(participants);
-
-                                }
-                                const link = createWekanLink(nameOfNewBoard, board.id);
-                                // TODO props.setSource(link);
-                            }).catch((error) => console.error(error)); */
                         }
                     })
                     .catch(() => console.error("CREATE NEW BOARD ERROR"));
@@ -243,9 +214,9 @@ class WekanModal extends Component {
             wekanLink
         } = this.state;
 
-        console.log(allSelectedWekanUserLabels);
-        if(allSelectedWekanUserLabels)
-        await addParticipantsToBoard(selectedBoard.id,allSelectedWekanUserLabels,false,false,false,true);
+        const board = await this.getBoardById(selectedBoard);
+        if (allSelectedWekanUserLabels)
+            await addParticipantsToBoard(board.id, allSelectedWekanUserLabels, false, false, false, true);
         alert(wekanLink);
     }
 
@@ -335,7 +306,7 @@ class WekanModal extends Component {
                                         onChange={this.selectedBoardHandler}
                                     >
                                         {boardList.map(board =>
-                                            <option key={board.id} value={board.title}>
+                                            <option key={board.id} value={board.id}>
                                                 {board.title}
                                             </option>)}
                                     </select>
@@ -347,18 +318,18 @@ class WekanModal extends Component {
                                 <div>
                                     <h3>Set permissions for this user</h3>
                                     <MultiSelect
-                                    options={allWekanUserLabels}
-                                    value={allSelectedWekanUserLabels}
-                                    onChange={this.allSelectedWekanUserLabelsHandler}
-                                    labelledBy="Select"
-                                />
+                                        options={allWekanUserLabels}
+                                        value={allSelectedWekanUserLabels}
+                                        onChange={this.allSelectedWekanUserLabelsHandler}
+                                        labelledBy="Select"
+                                    />
                                     <Button onClick={this.handleSetPermissions} label="Set Permissions" />
                                 </div>
                             }
                         </div>
 
                         {
-                            boardType === 'list' || boardType === 'new' &&
+                            (boardType === 'list' || boardType === 'new') &&
                             <div>
                                 <Button onClick={() => this.handleSave()} label="Save" />
                             </div>

@@ -235,8 +235,6 @@ const fetchAddUserToBoard = async (boardID, participantID, isAdmin, isNoComments
         },
     )
         .then(async (res) => {
-            console.log(`FETCH ADD PARTICIPANT:`);
-            console.log(res);
             if (res.status === 200) {
                 return undefined;
             } if (res.status === 400) {
