@@ -45,7 +45,7 @@ class WekanModal extends Component {
         this.boardColorHandler = this.boardColorHandler.bind(this);
         this.emailInputHandler = this.emailInputHandler.bind(this);
         this.resetStates = this.resetStates.bind(this);
-        this.wekanLogin = this.wekanLogin.bind(this);
+        //this.wekanLogin = this.wekanLogin.bind(this);
         //this.wekanLogin();
 
 
