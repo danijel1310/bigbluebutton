@@ -18,6 +18,7 @@ import Storage from '../../services/storage/session';
 import { withLayoutConsumer } from '/imports/ui/components/layout/context';
 import Auth from '/imports/ui/services/auth';
 import breakoutService from '/imports/ui/components/breakout-room/service';
+import Drawio from '../drawio/container';
 
 const LAYOUT_CONFIG = Meteor.settings.public.layout;
 const KURENTO_CONFIG = Meteor.settings.public.kurento;
@@ -180,6 +181,13 @@ export default withLayoutConsumer(withModalMounter(withTracker(() => {
       <ExternalVideoContainer
         isPresenter={MediaService.isUserPresenter()}
       />
+    );
+  }
+
+  if (MediaService.shouldShowDrawio()) {
+    
+    data.children = (
+      <Drawio/>
     );
   }
 

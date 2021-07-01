@@ -41,6 +41,15 @@ function shouldShowOverlay() {
   return getFromUserSettings('bbb_enable_video', KURENTO_CONFIG.enableVideo);
 }
 
+function shouldShowDrawio() {
+  const {enabled: enabledDrawio} = Meteor.settings.public.drawio;
+  if (enabledDrawio)  {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 const swapLayout = {
   value: getFromUserSettings('bbb_auto_swap_layout', LAYOUT_CONFIG.autoSwapLayout),
   tracker: new Tracker.Dependency(),
@@ -57,7 +66,7 @@ const toggleSwapLayout = () => {
   swapLayout.tracker.changed();
 };
 
-export const shouldEnableSwapLayout = () => !shouldShowScreenshare() && !shouldShowExternalVideo();
+export const shouldEnableSwapLayout = () => !shouldShowScreenshare() && !shouldShowExternalVideo() && !shouldShowDrawio();
 
 export const getSwapLayout = () => {
   swapLayout.tracker.depend();
@@ -70,6 +79,7 @@ export default {
   shouldShowScreenshare,
   shouldShowExternalVideo,
   shouldShowOverlay,
+  shouldShowDrawio,
   isUserPresenter,
   isVideoBroadcasting,
   toggleSwapLayout,

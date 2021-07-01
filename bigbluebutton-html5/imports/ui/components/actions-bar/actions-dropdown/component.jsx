@@ -12,9 +12,11 @@ import { withModalMounter } from '/imports/ui/components/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import ExternalVideoModal from '/imports/ui/components/external-video-player/modal/container';
+import WekanModal from '/imports/ui/components/wekan/modal/container';
 import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/container';
 import cx from 'classnames';
 import { styles } from '../styles';
+import MediaService, { getSwapLayout, shouldEnableSwapLayout } from '/imports/ui/components/media/service';
 
 const propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
@@ -109,6 +111,13 @@ class ActionsDropdown extends PureComponent {
     }
   }
 
+  handleDrawio() {
+    const {enabled : drawioEnabled} = Meteor.settings.public.drawio;
+    Meteor.settings.public.drawio.enabled = !drawioEnabled;
+    MediaService.toggleSwapLayout();
+    console.log("Changed to: " + Meteor.settings.public.drawio.enabled);
+  }
+
   getAvailableActions() {
     const {
       intl,
@@ -197,6 +206,32 @@ class ActionsDropdown extends PureComponent {
             description={intl.formatMessage(intlMessages.selectRandUserDesc)}
             key={this.selectUserRandId}
             onClick={() => mountModal(<RandomUserSelectContainer isSelectedUser={false} />)}
+          />
+        )
+        : null),
+      (amIPresenter
+        ? (
+          <DropdownListItem
+            icon="user"
+              // label={intl.formatMessage(intlMessages.selectWekanLabel)}
+            label="Starte Wekan"
+            description="WEKAN"
+            key="wekan"
+            onClick={() => mountModal(<WekanModal />)}
+          />
+        )
+        : null),
+      (amIPresenter
+        ? (
+          <DropdownListItem
+            icon="user"
+            label="Starte APP2"
+              // if drawio is sharing then stop drawio label if not then start drawio
+              // label={intl.formatMessage(intlMessages.selectDrawioLabel)}
+            description="drawio"
+            key="drawio"
+              // onclick if drawio is sharing then stopDrawio, if not then start
+            onClick={() => this.handleDrawio()}
           />
         )
         : null),
