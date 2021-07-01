@@ -42,12 +42,11 @@ function shouldShowOverlay() {
 }
 
 function shouldShowDrawio() {
-  const {enabled: enabledDrawio} = Meteor.settings.public.drawio;
-  if (enabledDrawio)  {
+  const { enabled: enabledDrawio } = Meteor.settings.public.drawio;
+  if (enabledDrawio) {
     return true;
-  } else {
-    return false;
   }
+  return false;
 }
 
 const swapLayout = {

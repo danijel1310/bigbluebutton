@@ -185,9 +185,8 @@ export default withLayoutConsumer(withModalMounter(withTracker(() => {
   }
 
   if (MediaService.shouldShowDrawio()) {
-    
     data.children = (
-      <Drawio/>
+      <Drawio />
     );
   }
 

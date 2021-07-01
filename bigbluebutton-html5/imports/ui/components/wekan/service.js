@@ -69,7 +69,15 @@ export const register = async (email, name, password) => {
     }
 };
 
-export const getAllBoardsFromUser = (userID, token) => {
+export const getAllBoardsFromUser = async(userID) => {
+    const adminUser = await login("nino.heinzle@hotmail.com", "implUser");
+
+    let token;
+    if (adminUser && typeof adminUser === "object") {
+        token = adminUser.token;
+    } else {
+        return "Adminlogin failed";
+    }
     const headers = {
         Authorization: `Bearer ${token}`,
         Accept: 'application/json',

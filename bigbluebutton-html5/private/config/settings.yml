@@ -150,6 +150,9 @@ public:
       - warning
   externalVideoPlayer:
     enabled: true
+  drawio:
+    enabled: false
+    url: ''
   networkMonitoring:
     enableNetworkMonitoring: false
     packetLostThreshold: 10

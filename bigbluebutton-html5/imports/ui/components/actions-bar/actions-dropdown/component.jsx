@@ -112,10 +112,10 @@ class ActionsDropdown extends PureComponent {
   }
 
   handleDrawio() {
-    const {enabled : drawioEnabled} = Meteor.settings.public.drawio;
+    const { enabled: drawioEnabled } = Meteor.settings.public.drawio;
     Meteor.settings.public.drawio.enabled = !drawioEnabled;
     MediaService.toggleSwapLayout();
-    console.log("Changed to: " + Meteor.settings.public.drawio.enabled);
+    console.log(`Changed to: ${Meteor.settings.public.drawio.enabled}`);
   }
 
   getAvailableActions() {

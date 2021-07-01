@@ -4,8 +4,8 @@ import Button from '/imports/ui/components/button/component';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import { defineMessages, injectIntl } from 'react-intl';
 import { styles } from './styles';
-import { getAllWekanUser, login, createWekanLink, addParticipantsToBoard, getAllBoardsFromUser, createNewBoard } from '/imports/ui/components/wekan/service';
-import { makeCall } from '/imports/ui/services/api';
+import { getAllWekanUser, createWekanLink, addParticipantsToBoard, getAllBoardsFromUser, createNewBoard } from '/imports/ui/components/wekan/service';
+
 
 const intlMessages = defineMessages({
     title: {
@@ -32,7 +32,8 @@ class WekanModal extends Component {
             boardColor: 'belize',
             boardList: new Array(),
             selectedBoard: '',
-            emailInput: ''
+            emailInput: '',
+            allWekanUser: new Array()
         };
 
         // const { wekanUrl } = props;
@@ -51,23 +52,41 @@ class WekanModal extends Component {
 
     }
 
-    async wekanLogin() {
+    /*   async wekanLogin() {
+  
+          const loginuser = await login('implUser', 'implUser');
+          const boardsOfUser = await getAllBoardsFromUser(loginuser.id, loginuser.token);
+  
+          this.setState({ boardList: boardsOfUser });
+          this.setState({ loginUser: loginuser });
+          const allUser = await getAllWekanUser();
+          console.log(allUser);
+      } */
 
-        const loginuser = await login('implUser', 'implUser');
-        const boardsOfUser = await getAllBoardsFromUser(loginuser.id, loginuser.token);
+    async handleSignIn() {
+        const {
+            emailInput,
+            allWekanUser
+        } = this.state;
 
-        this.setState({ boardList: boardsOfUser });
-        this.setState({ loginUser: loginuser });
-        //const userId = Auth.externUserID;
+        let allUser;
+        if (allWekanUser.length < 1)
+            allUser = await getAllWekanUser();
 
-        /*  const requestUserInformation = (userId) => {
-             makeCall('requestUserInformation', userId);
-         };
-         const uinformation = requestUserInformation(Auth.externUserID);
-         console.log(uinformation); */
+        this.setState({ allWekanUser: allUser });
+        allWekanUser.forEach(user => {
+            if (user.username === emailInput) {
+                this.setState({ loginUser: { username: user.username, id: user.id } });
+            }
+        });
+        const {
+            loginUser
+        } = this.state;
 
-        const allUser = await getAllWekanUser();
-        console.log(allUser);
+        if (loginUser) {
+            const boardsOfUser = await getAllBoardsFromUser(loginUser.id);
+            this.setState({ boardList: boardsOfUser });
+        }
     }
 
     emailInputHandler(ev) {
@@ -171,10 +190,6 @@ class WekanModal extends Component {
         }
 
         this.resetStates();
-    }
-
-    handleSignIn() {
-        
     }
 
     render() {

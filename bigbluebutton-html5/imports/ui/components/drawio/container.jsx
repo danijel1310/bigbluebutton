@@ -8,8 +8,6 @@ const DrawioContainer = props => (
   <Drawio {...{ ...props }} />
 );
 
-export default withTracker(( ) => {
-  return {
-    drawioUrl: 'https://pfaender.fairteaching.net/drawio/'
-  };
-})(DrawioContainer);
+export default withTracker(() => ({
+  drawioUrl: 'https://pfaender.fairteaching.net/drawio/',
+}))(DrawioContainer);
