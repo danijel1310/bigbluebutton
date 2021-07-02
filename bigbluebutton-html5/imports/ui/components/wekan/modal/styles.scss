@@ -70,6 +70,7 @@
 
 .startBtn {
   display: flex;
+  justify-content: center;
   align-self: center;
   &:focus {
     outline: none !important;
@@ -79,13 +80,15 @@
     color: #3c5764;
   }
 
-  margin: 0;
+  margin: 10;
   width: 40%;
-  display: block;
-  position: absolute;
-  bottom:   20px;
   color: var(--color-white) !important;
   background-color: var(--color-link) !important;
+}
+
+.centeredContent {
+  display: flex;
+  justify-content: center;
 }
 
 .title {
@@ -100,7 +103,7 @@
   }
 }
 
-.videoUrl {
+.mailInput {
   margin: 0 var(--border-size) 0 var(--border-size);
 
   label {

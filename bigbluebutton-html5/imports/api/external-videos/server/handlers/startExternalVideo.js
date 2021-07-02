@@ -11,6 +11,7 @@ export default function handleStartExternalVideo({ header, body }, meetingId) {
 
   const externalVideoUrl = body.externalVideoUrl;
   const user = Users.findOne({ meetingId: meetingId, userId: userId })
+  console.log("handle start video");
 
   if (user && user.presenter) {
     try {

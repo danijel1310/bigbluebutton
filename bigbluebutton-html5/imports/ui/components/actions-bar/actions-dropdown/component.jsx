@@ -17,6 +17,7 @@ import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/
 import cx from 'classnames';
 import { styles } from '../styles';
 import MediaService, { getSwapLayout, shouldEnableSwapLayout } from '/imports/ui/components/media/service';
+import { startDrawio, stopDrawio } from '/imports/ui/components/drawio/service';
 
 const propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
@@ -101,7 +102,27 @@ class ActionsDropdown extends PureComponent {
 
     this.handleExternalVideoClick = this.handleExternalVideoClick.bind(this);
     this.makePresentationItems = this.makePresentationItems.bind(this);
+
+    //TODO SET STATE ANHAND VON MEETING 
+    
+    this.state = {
+      isDrawioRunning: false,
+      isWekanRunning: false,
+    };
+
+    this.handleIsDrawioRunning = this.handleIsDrawioRunning.bind(this);
+    this.handleisWekanRunningRunning = this.handleisWekanRunningRunning.bind(this);  
+    this.handleDrawio = this.handleDrawio.bind(this);
   }
+
+  handleIsDrawioRunning(isRunning) {
+    this.setState({isDrawioRunning: isRunning});
+  }
+
+  handleisWekanRunningRunning(isRunning) {
+    this.setState({isWekanRunning: isRunning});
+  }
+
 
   componentDidUpdate(prevProps) {
     const { amIPresenter: wasPresenter } = prevProps;
@@ -112,10 +133,21 @@ class ActionsDropdown extends PureComponent {
   }
 
   handleDrawio() {
-    const { enabled: drawioEnabled } = Meteor.settings.public.drawio;
-    Meteor.settings.public.drawio.enabled = !drawioEnabled;
+    //const { enabled: drawioEnabled } = Meteor.settings.public.drawio;
+    //Meteor.settings.public.drawio.enabled = !drawioEnabled;
+    // check if presenter
+    const {isDrawioRunning} = this.state;
+
+    if(isDrawioRunning) {
+      stopDrawio();
+      this.handleIsDrawioRunning(false);
+    } else {
+      startDrawio();
+      this.handleIsDrawioRunning(true);
+    }
+
+    
     MediaService.toggleSwapLayout();
-    console.log(`Changed to: ${Meteor.settings.public.drawio.enabled}`);
   }
 
   getAvailableActions() {
@@ -139,6 +171,10 @@ class ActionsDropdown extends PureComponent {
       takePresenter,
       takePresenterDesc,
     } = intlMessages;
+
+    const {
+      isDrawioRunning, isWekanRunning
+    } = this.state;
 
     const {
       formatMessage,
@@ -214,7 +250,7 @@ class ActionsDropdown extends PureComponent {
           <DropdownListItem
             icon="user"
               // label={intl.formatMessage(intlMessages.selectWekanLabel)}
-            label="Starte Wekan"
+            label={isWekanRunning ? 'Stop Wekan' : 'Start Wekan'}
             description="WEKAN"
             key="wekan"
             onClick={() => mountModal(<WekanModal />)}
@@ -225,7 +261,7 @@ class ActionsDropdown extends PureComponent {
         ? (
           <DropdownListItem
             icon="user"
-            label="Starte APP2"
+            label={isDrawioRunning ? 'Stop Drawio' : 'Start Drawio'}
               // if drawio is sharing then stop drawio label if not then start drawio
               // label={intl.formatMessage(intlMessages.selectDrawioLabel)}
             description="drawio"

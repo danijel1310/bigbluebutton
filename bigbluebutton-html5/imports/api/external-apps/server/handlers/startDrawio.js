@@ -19,15 +19,13 @@ export default function handleStartDrawio({ header, body }, meetingId) {
       },
     };
     */
-    console.log("updateingasdfiahsi db..")
-    const externalVideoUrl = 'test';
     if (user && user.presenter) {
         try {
-            console.log("updateingasdfiahsi db..")
-            Meetings.update({ meetingId }, { $set: { externalVideoUrl} });
-            //Logger.info(`User id=${userId} sharing an external video: ${externalVideoUrl} for meeting ${meetingId}`);
+            console.log("update meetings object..")
+            Meetings.update({ meetingId }, { $set: { showingDrawio} });
+            Logger.info(`User id=${userId} setting drawio attribute: ${showingDrawio} for meeting ${meetingId}`);
         } catch (err) {
-            //Logger.error(`Error on setting shared external video start in Meetings collection: ${err}`);
+            Logger.error(`Error on setting drawio start in Meetings collection: ${err}`);
         }
     }
 }

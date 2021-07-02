@@ -7,7 +7,7 @@ import { styles } from './styles';
 import { getAllWekanUser, createWekanLink, addParticipantsToBoard, getAllBoardsFromUser, createNewBoard } from '/imports/ui/components/wekan/service';
 import MultiSelect from "react-multi-select-component";
 
-const intlMessages = defineMessages({
+/* const intlMessages = defineMessages({
     title: {
         id: 'app.wekan.title',
         description: 'Modal title',
@@ -17,7 +17,7 @@ const intlMessages = defineMessages({
         description: 'New Board Input field placeholder',
     },
 
-});
+}); */
 
 
 class WekanModal extends Component {
@@ -54,10 +54,9 @@ class WekanModal extends Component {
         this.wekanLinkHandler = this.wekanLinkHandler.bind(this);
         this.handleSetPermissions = this.handleSetPermissions.bind(this);
         this.getBoardById = this.getBoardById.bind(this);
-
-
-
     }
+
+
 
     allWekanUserLabelsHandler(allwekanuserlabels) {
         this.setState({ allWekanUserLabels: allwekanuserlabels });
@@ -217,6 +216,7 @@ class WekanModal extends Component {
         const board = await this.getBoardById(selectedBoard);
         if (allSelectedWekanUserLabels)
             await addParticipantsToBoard(board.id, allSelectedWekanUserLabels, false, false, false, true);
+        this.setState({ boardType: 'frame' });
         alert(wekanLink);
     }
 
@@ -247,93 +247,101 @@ class WekanModal extends Component {
                     hideBorder
                 >
                     <header className={styles.header}>
-                        <h3 className={styles.title}>Title</h3>
+                        <h3 className={styles.title}>Wekan Presettings</h3>
                     </header>
 
                     <div className={styles.content}>
 
-                        <div>
-                            {boardType !== 'login' && boardType !== 'permission' &&
+                        {boardType !== 'login' && boardType !== 'permission' &&
 
-                                <select value={boardType} onChange={this.boardTypeHandler}>
-                                    <option value="new">New</option>
-                                    <option value="list">List</option>
+                            <select value={boardType} onChange={this.boardTypeHandler}>
+                                <option value="new">New Board</option>
+                                <option value="list">Existing Board</option>
+                            </select>
+                        }
+                        {boardType === 'login' && (
+                            <div>
+                                <div className={styles.mailInput}>
+                                    <label htmlFor="email-input">
+                                        Email address
+                                        <input
+                                            style={styles.input}
+                                            value={emailInput}
+                                            onChange={this.emailInputHandler}
+                                            placeholder="Please enter your Email address"
+                                        />
+                                    </label>
+                                </div>
+                                <div className={styles.centeredContent}>
+                                    <Button className={styles.startBtn} id="email-input" label="Sign in" onClick={this.handleSignIn} />
+                                </div>
+                                
+                            </div>
+                        )}
+                        {boardType === 'new' && (
+                            <div className={styles.mailInput}>
+                                <input
+                                    value={nameOfNewBoard}
+                                    onChange={this.nameOfNewBoardHandler}
+                                />
+                                <select
+                                    value={permissionType}
+                                    onChange={this.permissionTypeHandler}
+                                >
+                                    <option value="private">Private</option>
+                                    <option value="public">Public</option>
                                 </select>
-                            }
-                        </div>
-                        <div>
+                                <select
+                                    value={boardColor}
+                                    onChange={this.boardColorHandler}
+                                >
+                                    <option value="belize">belize</option>
+                                    <option value="nephritis">nephritis</option>
+                                    <option value="pomegranate">pomegranate</option>
+                                    <option value="pumpkin">pumpkin</option>
+                                    <option value="wisteria">wisteria</option>
+                                    <option value="midnight">midnight</option>
+                                </select>
+                            </div>
+                        )}
 
-                            {boardType === 'login' && (
-                                <div>
-                                    <input
-                                        value={emailInput}
-                                        onChange={this.emailInputHandler}
-                                    />
-                                    <Button label="Sign in" onClick={this.handleSignIn} />
-                                </div>
-                            )}
-                            {boardType === 'new' && (
-                                <div>
-                                    <input
-                                        value={nameOfNewBoard}
-                                        onChange={this.nameOfNewBoardHandler}
-                                    />
-                                    <select
-                                        value={permissionType}
-                                        onChange={this.permissionTypeHandler}
-                                    >
-                                        <option value="private">Private</option>
-                                        <option value="public">Public</option>
-                                    </select>
-                                    <select
-                                        value={boardColor}
-                                        onChange={this.boardColorHandler}
-                                    >
-                                        <option value="belize">belize</option>
-                                        <option value="nephritis">nephritis</option>
-                                        <option value="pomegranate">pomegranate</option>
-                                        <option value="pumpkin">pumpkin</option>
-                                        <option value="wisteria">wisteria</option>
-                                        <option value="midnight">midnight</option>
-                                    </select>
-                                </div>
-                            )}
+                        {boardType === 'list' && boardList
+                            && (
+                                <select
+                                    value={selectedBoard}
+                                    onChange={this.selectedBoardHandler}
+                                >
+                                    {boardList.map(board =>
+                                        <option key={board.id} value={board.id}>
+                                            {board.title}
+                                        </option>)}
+                                </select>
+                            )
+                        }
 
-                            {boardType === 'list' && boardList
-                                && (
-                                    <select
-                                        value={selectedBoard}
-                                        onChange={this.selectedBoardHandler}
-                                    >
-                                        {boardList.map(board =>
-                                            <option key={board.id} value={board.id}>
-                                                {board.title}
-                                            </option>)}
-                                    </select>
-                                )
-                            }
+                        {boardType === 'permission' && selectedBoard && wekanLink && allWekanUserLabels &&
 
-                            {boardType === 'permission' && selectedBoard && wekanLink && allWekanUserLabels &&
-
-                                <div>
-                                    <h3>Set permissions for this user</h3>
-                                    <MultiSelect
-                                        options={allWekanUserLabels}
-                                        value={allSelectedWekanUserLabels}
-                                        onChange={this.allSelectedWekanUserLabelsHandler}
-                                        labelledBy="Select"
-                                    />
-                                    <Button onClick={this.handleSetPermissions} label="Set Permissions" />
-                                </div>
-                            }
-                        </div>
+                            <div>
+                                <h3>Set permissions for this user</h3>
+                                <MultiSelect
+                                    options={allWekanUserLabels}
+                                    value={allSelectedWekanUserLabels}
+                                    onChange={this.allSelectedWekanUserLabelsHandler}
+                                    labelledBy="Select"
+                                />
+                                <Button className={styles.startBtn} onClick={this.handleSetPermissions} label="Set Permissions" />
+                            </div>
+                        }
 
                         {
                             (boardType === 'list' || boardType === 'new') &&
                             <div>
-                                <Button onClick={() => this.handleSave()} label="Save" />
+                                <Button className={styles.startBtn} onClick={() => this.handleSave()} label="Save" />
                             </div>
                         }
+
+                        {boardType === 'frame' && wekanLink &&
+                            <iframe src={wekanLink} />}
                     </div>
                 </Modal>
             </>

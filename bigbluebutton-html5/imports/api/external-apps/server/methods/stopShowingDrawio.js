@@ -5,10 +5,10 @@ import RedisPubSub from '/imports/startup/server/redis';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 import Meetings from '/imports/api/meetings';
 
-export default function startShowingDrawio(options) {
+export default function stopShowingDrawio(options) {
     const REDIS_CONFIG = Meteor.settings.private.redis;
     const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
-    const EVENT_NAME = 'StartDrawioPubMsg'; //StartDrawioPubMsg
+    const EVENT_NAME = 'StopDrawioPubMsg'; 
 
     const { meetingId, requesterUserId: userId } = extractCredentials(this.userId);
     const { showingDrawio } = options;

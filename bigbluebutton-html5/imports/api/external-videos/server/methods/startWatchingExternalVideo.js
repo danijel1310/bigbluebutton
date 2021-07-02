@@ -23,8 +23,8 @@ export default function startWatchingExternalVideo(options) {
     if (user && user.presenter) {
       check(externalVideoUrl, String);
       const payload = { externalVideoUrl };
+      console.log("PUSHING REDIS vid with " + externalVideoUrl);
       Logger.debug(`User id=${userId} sending ${EVENT_NAME} url:${externalVideoUrl} for meeting ${meetingId}`);
-      console.log("TEsT");
       return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, userId, payload);
     }
     Logger.error(`Only presenters are allowed to start external video for a meeting. meeting=${meetingId} userId=${userId}`);

@@ -1,6 +1,7 @@
 import Presentations from '/imports/api/presentations';
 import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service';
 import { getVideoUrl } from '/imports/ui/components/external-video-player/service';
+import { getDrawioShowing } from '/imports/ui/components/drawio/service';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
 import Settings from '/imports/ui/services/settings';
@@ -43,10 +44,7 @@ function shouldShowOverlay() {
 
 function shouldShowDrawio() {
   const { enabled: enabledDrawio } = Meteor.settings.public.drawio;
-  if (enabledDrawio) {
-    return true;
-  }
-  return false;
+  return getDrawioShowing();
 }
 
 const swapLayout = {

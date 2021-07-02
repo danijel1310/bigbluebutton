@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { injectIntl } from 'react-intl';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import ReactDOM from 'react-dom';
-import { startShowDrawio } from './service';
+import { startShowDrawio, readMeeting } from './service';
 import { styles } from './styles';
 
 class Drawio extends Component {
@@ -42,6 +42,12 @@ class Drawio extends Component {
           onClick={startShowDrawio}
         >
 Get Token
+        </button>
+        <button
+          id="get_meeting"
+          onClick={readMeeting}
+        >
+  read
         </button>
         <iframe
           id="draw-io-iframe"

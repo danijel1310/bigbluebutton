@@ -10,32 +10,31 @@ const startShowDrawio = () => {
 
 const getDrawioShowing = () => {
     const meetingId = Auth.meetingID;
-    const meeting = Meetings.findOne({ meetingId });
-    /*
-    const db = Mongo.createCollection('testcol',
-    {
-        drawioEnabled: false,
-        wekanEnabled: false
-    });
-    const col = new Mongo.Collection('testcol');
-    col.insert({drawioEnabled: true});
-    */
-    const url = 'https://www.youtube.com/watch?v=F9C0T_O7cIo';
-    //Meetings.update({ meetingId }, { $set: { url } });
-    //console.log(col);
+    const meeting = Meetings.findOne({ meetingId }, { fields: { showingDrawio: 1 } });
+
     console.log(meeting);
+
+    return meeting && meeting.showingDrawio;
 }
 
 const startDrawio = () => {
-    let showingDrawio = 'true';
+    let showingDrawio = true;
 
-    makeCall('startShowingDrawio', {showingDrawio});
+    makeCall('startShowingDrawio', { showingDrawio });
 };
+
+const stopDrawio = () => {
+    let showingDrawio = false;
+
+    makeCall('stopShowingDrawio', { showingDrawio });
+}
+
+const readMeeting = () => {
+    getDrawioShowing();
+}
 
 function demo() {
     const syncFetch = true;
-   
-    getDrawioShowing();
     startDrawio();
     setTimeout(() => {
         const iframe = document.getElementById('draw-io-iframe').contentWindow;
@@ -56,5 +55,7 @@ function demo() {
 export {
     startShowDrawio,
     getDrawioShowing,
-    startDrawio
+    startDrawio,
+    stopDrawio,
+    readMeeting
 };
