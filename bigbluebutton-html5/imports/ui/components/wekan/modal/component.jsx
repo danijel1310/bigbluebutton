@@ -19,7 +19,6 @@ import MultiSelect from "react-multi-select-component";
 
 }); */
 
-
 class WekanModal extends Component {
     constructor(props) {
         super(props);
@@ -36,9 +35,9 @@ class WekanModal extends Component {
             allWekanUser: new Array(),
             allWekanUserLabels: new Array(),
             wekanLink: '',
-            allSelectedWekanUserLabels: new Array()
+            allSelectedWekanUserLabels: new Array(),
+            errorMessage: ''
         };
-
         // const { wekanUrl } = props;
 
         this.permissionTypeHandler = this.permissionTypeHandler.bind(this);
@@ -49,14 +48,19 @@ class WekanModal extends Component {
         this.emailInputHandler = this.emailInputHandler.bind(this);
         this.allWekanUserLabelsHandler = this.allWekanUserLabelsHandler.bind(this);
         this.allSelectedWekanUserLabelsHandler = this.allSelectedWekanUserLabelsHandler.bind(this);
-        this.resetStates = this.resetStates.bind(this);
         this.handleSignIn = this.handleSignIn.bind(this);
         this.wekanLinkHandler = this.wekanLinkHandler.bind(this);
         this.handleSetPermissions = this.handleSetPermissions.bind(this);
         this.getBoardById = this.getBoardById.bind(this);
+        this.errorMessageHandler = this.errorMessageHandler.bind(this);
+        this.setFirstBoard = this.setFirstBoard.bind(this);
     }
 
 
+
+    errorMessageHandler(errorMsg) {
+        this.setState({ errorMessage: errorMsg });
+    }
 
     allWekanUserLabelsHandler(allwekanuserlabels) {
         this.setState({ allWekanUserLabels: allwekanuserlabels });
@@ -66,7 +70,7 @@ class WekanModal extends Component {
         this.setState({ allSelectedWekanUserLabels: selectedLabels });
     }
 
-    getBoardById(id) {
+    async getBoardById(id) {
         const { boardList } = this.state;
 
         let matchedBoard;
@@ -102,9 +106,22 @@ class WekanModal extends Component {
             const boardsOfUser = await getAllBoardsFromUser(loginUser.id);
             this.setState({ boardList: boardsOfUser });
             this.setState({ boardType: 'new' });
+            this.errorMessageHandler('');
+        } else {
+            this.errorMessageHandler('There is no known account with this email address');
         }
 
         this.createAllWekanUserLabels();
+    }
+
+    setFirstBoard() {
+        const {
+            boardList
+        } = this.state;
+
+        if(boardList.length > 0) {
+            this.setState({selectedBoard: boardList[0].id});
+        }
     }
 
     createAllWekanUserLabels() {
@@ -136,8 +153,10 @@ class WekanModal extends Component {
     }
 
     boardTypeHandler(ev) {
-        if (ev && ev.target.value === 'list') {
-            this.resetStates();
+        if(ev.target.value === 'list') {
+            this.setFirstBoard();
+        } else {
+            this.setState({selectedBoard: ''});
         }
         this.setState({ boardType: ev.target.value });
     }
@@ -150,19 +169,7 @@ class WekanModal extends Component {
         this.setState({ selectedBoard: ev.target.value });
     }
 
-    resetStates() {
-        /*  console.log('HI');
-         this.setstate = ({
-             boardType: 'new',
-             nameOfNewBoard: '',
-             permissionType: 'private',
-             boardColor: 'belize',
-             selectedBoard: '',
-         }); */
-    }
-
     async handleSave() {
-
         const {
             loginUser,
             boardType,
@@ -172,6 +179,8 @@ class WekanModal extends Component {
             selectedBoard,
         } = this.state;
 
+        console.log(`selected board: ${selectedBoard}`);
+        console.log(`boardType: ${boardType}`);
 
         if (selectedBoard && boardType === 'list') {
             const board = await this.getBoardById(selectedBoard);
@@ -182,7 +191,7 @@ class WekanModal extends Component {
             this.wekanLinkHandler(link);
             this.setState({ boardType: 'permission' });
             return;
-        } else {
+        } else if(boardType === 'new') {
             if (loginUser) {
                 createNewBoard(
                     nameOfNewBoard,
@@ -192,7 +201,6 @@ class WekanModal extends Component {
                 )
                     .then((board) => {
                         if (board && typeof board === 'object') {
-
                             const link = createWekanLink(board.title, board.id);
                             this.wekanLinkHandler(link);
                             this.setState({ selectedBoard: board });
@@ -202,8 +210,6 @@ class WekanModal extends Component {
                     .catch(() => console.error("CREATE NEW BOARD ERROR"));
             }
         }
-
-        this.resetStates();
     }
 
     async handleSetPermissions() {
@@ -214,10 +220,27 @@ class WekanModal extends Component {
         } = this.state;
 
         const board = await this.getBoardById(selectedBoard);
-        if (allSelectedWekanUserLabels)
+        if (allSelectedWekanUserLabels && board)
             await addParticipantsToBoard(board.id, allSelectedWekanUserLabels, false, false, false, true);
-        this.setState({ boardType: 'frame' });
-        alert(wekanLink);
+        //this.setState({ boardType: 'frame' });
+        //alert(wekanLink);
+
+        //TODO set wekanLink into Meeting state
+        const { closeModal } = this.props;
+        closeModal();
+    }
+
+    validateSave() {
+        const {
+            boardType,
+            nameOfNewBoard
+        } = this.state;
+
+        if (boardType === 'new' && nameOfNewBoard === '') {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     render() {
@@ -234,7 +257,8 @@ class WekanModal extends Component {
             emailInput,
             wekanLink,
             allWekanUserLabels,
-            allSelectedWekanUserLabels
+            allSelectedWekanUserLabels,
+            errorMessage
         } = this.state;
 
         return (
@@ -253,15 +277,19 @@ class WekanModal extends Component {
                     <div className={styles.content}>
 
                         {boardType !== 'login' && boardType !== 'permission' &&
-
-                            <select value={boardType} onChange={this.boardTypeHandler}>
-                                <option value="new">New Board</option>
-                                <option value="list">Existing Board</option>
-                            </select>
+                            <div className={styles.inputStyle}>
+                                Select board
+                                <label htmlFor="boardType">
+                                    <select id="boardType" value={boardType} onChange={this.boardTypeHandler}>
+                                        <option value="new">New Board</option>
+                                        <option value="list">Existing Board</option>
+                                    </select>
+                                </label>
+                            </div>
                         }
                         {boardType === 'login' && (
                             <div>
-                                <div className={styles.mailInput}>
+                                <div className={styles.inputStyle}>
                                     <label htmlFor="email-input">
                                         Email address
                                         <input
@@ -271,77 +299,113 @@ class WekanModal extends Component {
                                             placeholder="Please enter your Email address"
                                         />
                                     </label>
+                                    <div className="wekanRegisterNote">
+                                        If you don't have a wekan account yet, please register at https://pfaender.fairteaching.net/wekan/.
+                                        The email address is the same one you used for your BigBlueButton registration.
+                                    </div>
                                 </div>
+                                {
+                                    errorMessage &&
+                                    <div className={styles.inputError}>
+                                        {errorMessage}
+                                    </div>
+                                }
                                 <div className={styles.centeredContent}>
                                     <Button className={styles.startBtn} id="email-input" label="Sign in" onClick={this.handleSignIn} />
                                 </div>
-                                
                             </div>
                         )}
                         {boardType === 'new' && (
-                            <div className={styles.mailInput}>
-                                <input
-                                    value={nameOfNewBoard}
-                                    onChange={this.nameOfNewBoardHandler}
-                                />
-                                <select
-                                    value={permissionType}
-                                    onChange={this.permissionTypeHandler}
-                                >
-                                    <option value="private">Private</option>
-                                    <option value="public">Public</option>
-                                </select>
-                                <select
-                                    value={boardColor}
-                                    onChange={this.boardColorHandler}
-                                >
-                                    <option value="belize">belize</option>
-                                    <option value="nephritis">nephritis</option>
-                                    <option value="pomegranate">pomegranate</option>
-                                    <option value="pumpkin">pumpkin</option>
-                                    <option value="wisteria">wisteria</option>
-                                    <option value="midnight">midnight</option>
-                                </select>
+                            <div className={styles.inputStyle}>
+                                <label htmlFor="newBoardName">
+                                    Board name *
+                                    <input
+                                        id="newBoardName"
+                                        placeholder="Please enter the name of the new board"
+                                        value={nameOfNewBoard}
+                                        onChange={this.nameOfNewBoardHandler}
+                                    />
+                                </label>
+                                <label htmlFor="boardPermission">
+                                    Board visbility
+                                    <select
+                                        id="boardPermission"
+                                        value={permissionType}
+                                        onChange={this.permissionTypeHandler}
+                                    >
+                                        <option value="private">Private</option>
+                                        <option value="public">Public</option>
+                                    </select>
+                                </label>
+                                <label htmlFor="boardColor">
+                                    Board color
+                                    <select
+                                        id="boardColor"
+                                        value={boardColor}
+                                        onChange={this.boardColorHandler}
+                                    >
+                                        <option value="belize">belize</option>
+                                        <option value="nephritis">nephritis</option>
+                                        <option value="pomegranate">pomegranate</option>
+                                        <option value="pumpkin">pumpkin</option>
+                                        <option value="wisteria">wisteria</option>
+                                        <option value="midnight">midnight</option>
+                                    </select>
+                                </label>
                             </div>
                         )}
 
                         {boardType === 'list' && boardList
                             && (
-                                <select
-                                    value={selectedBoard}
-                                    onChange={this.selectedBoardHandler}
-                                >
-                                    {boardList.map(board =>
-                                        <option key={board.id} value={board.id}>
-                                            {board.title}
-                                        </option>)}
-                                </select>
+                                <div className={styles.inputStyle}>
+                                    <label htmlFor="existingBoardSelection">
+                                        Existing board selection
+                                        <select
+                                            id="existingBoardSelection"
+                                            value={selectedBoard}
+                                            onChange={this.selectedBoardHandler}
+                                        >
+                                            {boardList.map(board =>
+                                                <option key={board.id} value={board.id}>
+                                                    {board.title}
+                                                </option>)}
+                                        </select>
+                                    </label>
+                                </div>
                             )
                         }
 
                         {boardType === 'permission' && selectedBoard && wekanLink && allWekanUserLabels &&
 
                             <div>
-                                <h3>Set permissions for this user</h3>
-                                <MultiSelect
-                                    options={allWekanUserLabels}
-                                    value={allSelectedWekanUserLabels}
-                                    onChange={this.allSelectedWekanUserLabelsHandler}
-                                    labelledBy="Select"
-                                />
-                                <Button className={styles.startBtn} onClick={this.handleSetPermissions} label="Set Permissions" />
+                                <div className="multiSelectInput">
+                                    <div className={styles.permissionSelectDiv}>
+                                        <label htmlFor="permissionSelection">
+                                            Select the users you want to collaborate on your wekan board
+
+                                            <MultiSelect
+                                                options={allWekanUserLabels}
+                                                value={allSelectedWekanUserLabels}
+                                                onChange={this.allSelectedWekanUserLabelsHandler}
+                                                labelledBy="Select"
+                                            />
+                                        </label>
+                                    </div>
+                                    <div className={styles.placeholder}/>
+                                </div>
+                                <div className={styles.centeredContent}>
+                                    <Button className={styles.startBtn} onClick={this.handleSetPermissions} label="Set Permissions" />
+                                </div>
+
                             </div>
                         }
 
                         {
                             (boardType === 'list' || boardType === 'new') &&
-                            <div>
-                                <Button className={styles.startBtn} onClick={() => this.handleSave()} label="Save" />
+                            <div className={styles.centeredContent}>
+                                <Button disabled={this.validateSave()} className={styles.startBtn} onClick={() => this.handleSave()} label="Save" />
                             </div>
                         }
-
-                        {boardType === 'frame' && wekanLink &&
-                            <iframe src={wekanLink} />}
                     </div>
                 </Modal>
             </>

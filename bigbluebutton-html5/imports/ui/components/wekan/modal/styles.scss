@@ -35,6 +35,10 @@
   min-height: 23rem;
 }
 
+.placeholder {
+  margin-top: 320px;
+}
+
 .closeBtn {
   position: relative;
   background-color: var(--color-white);
@@ -103,14 +107,14 @@
   }
 }
 
-.mailInput {
+.inputStyle {
   margin: 0 var(--border-size) 0 var(--border-size);
 
   label {
     display: block;
   }
 
-  input {
+  input, select, MultiSelect {
     @include inputFocus(var(--color-blue-light));
     display: block;
     margin: 10px 0 10px 0;
@@ -131,4 +135,24 @@
   span {
     font-weight: 600;
   }
+}
+
+.inputError {
+  color: red;
+  padding: 1em 0 2.5em 0;
+
+  :global(.animationsEnabled) & {
+    transition: 1s;
+  }
+}
+
+.permissionSelectDiv {
+  margin: 15px;
+}
+
+.wekanRegisterNote {
+  color: var(--color-gray);
+  font-size: var(--font-size-small);
+  font-style: italic;
+  padding-top: var(--sm-padding-y);
 }
