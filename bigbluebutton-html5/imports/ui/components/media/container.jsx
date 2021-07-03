@@ -19,6 +19,7 @@ import { withLayoutConsumer } from '/imports/ui/components/layout/context';
 import Auth from '/imports/ui/services/auth';
 import breakoutService from '/imports/ui/components/breakout-room/service';
 import Drawio from '../drawio/container';
+import Wekan from '../wekan/container';
 
 const LAYOUT_CONFIG = Meteor.settings.public.layout;
 const KURENTO_CONFIG = Meteor.settings.public.kurento;
@@ -187,6 +188,12 @@ export default withLayoutConsumer(withModalMounter(withTracker(() => {
   if (MediaService.shouldShowDrawio()) {
     data.children = (
       <Drawio />
+    );
+  }
+
+  if (MediaService.shouldShowWekan()) {
+    data.children = (
+      <Wekan />
     );
   }
 

@@ -12,7 +12,5 @@ const WekanModalContainer = props => <WekanModal {...props} />;
 export default withModalMounter(withTracker(({ mountModal }) => ({
   closeModal: () => {
     mountModal(null);
-  },
-  startWekan: () => alert('START WEKANasdasdasdasdasdsa'),
-  wekanUrl: () => alert('WEKAN'),
+  }
 }))(WekanModalContainer));

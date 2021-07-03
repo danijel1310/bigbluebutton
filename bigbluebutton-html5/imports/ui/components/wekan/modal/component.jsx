@@ -6,6 +6,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { styles } from './styles';
 import { getAllWekanUser, createWekanLink, addParticipantsToBoard, getAllBoardsFromUser, createNewBoard } from '/imports/ui/components/wekan/service';
 import MultiSelect from "react-multi-select-component";
+import { startWekan } from '../service';
 
 /* const intlMessages = defineMessages({
     title: {
@@ -38,7 +39,7 @@ class WekanModal extends Component {
             allSelectedWekanUserLabels: new Array(),
             errorMessage: ''
         };
-        // const { wekanUrl } = props;
+        const { handleisWekanRunning } = this.props;
 
         this.permissionTypeHandler = this.permissionTypeHandler.bind(this);
         this.boardTypeHandler = this.boardTypeHandler.bind(this);
@@ -119,8 +120,8 @@ class WekanModal extends Component {
             boardList
         } = this.state;
 
-        if(boardList.length > 0) {
-            this.setState({selectedBoard: boardList[0].id});
+        if (boardList.length > 0) {
+            this.setState({ selectedBoard: boardList[0].id });
         }
     }
 
@@ -153,10 +154,10 @@ class WekanModal extends Component {
     }
 
     boardTypeHandler(ev) {
-        if(ev.target.value === 'list') {
+        if (ev.target.value === 'list') {
             this.setFirstBoard();
         } else {
-            this.setState({selectedBoard: ''});
+            this.setState({ selectedBoard: '' });
         }
         this.setState({ boardType: ev.target.value });
     }
@@ -191,7 +192,7 @@ class WekanModal extends Component {
             this.wekanLinkHandler(link);
             this.setState({ boardType: 'permission' });
             return;
-        } else if(boardType === 'new') {
+        } else if (boardType === 'new') {
             if (loginUser) {
                 createNewBoard(
                     nameOfNewBoard,
@@ -225,8 +226,9 @@ class WekanModal extends Component {
         //this.setState({ boardType: 'frame' });
         //alert(wekanLink);
 
-        //TODO set wekanLink into Meeting state
-        const { closeModal } = this.props;
+        startWekan(wekanLink);
+        const { closeModal, handleisWekanRunning } = this.props;
+        handleisWekanRunning(true);
         closeModal();
     }
 
@@ -391,7 +393,7 @@ class WekanModal extends Component {
                                             />
                                         </label>
                                     </div>
-                                    <div className={styles.placeholder}/>
+                                    <div className={styles.placeholder} />
                                 </div>
                                 <div className={styles.centeredContent}>
                                     <Button className={styles.startBtn} onClick={this.handleSetPermissions} label="Set Permissions" />

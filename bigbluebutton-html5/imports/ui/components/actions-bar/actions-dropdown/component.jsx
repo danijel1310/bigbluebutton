@@ -17,7 +17,8 @@ import RandomUserSelectContainer from '/imports/ui/components/modal/random-user/
 import cx from 'classnames';
 import { styles } from '../styles';
 import MediaService, { getSwapLayout, shouldEnableSwapLayout } from '/imports/ui/components/media/service';
-import { startDrawio, stopDrawio } from '/imports/ui/components/drawio/service';
+import { startDrawio, stopDrawio, getDrawioShowing } from '/imports/ui/components/drawio/service';
+import { stopWekan, getWekanShowing } from '/imports/ui/components/wekan/service';
 
 const propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
@@ -103,24 +104,25 @@ class ActionsDropdown extends PureComponent {
     this.handleExternalVideoClick = this.handleExternalVideoClick.bind(this);
     this.makePresentationItems = this.makePresentationItems.bind(this);
 
-    //TODO SET STATE ANHAND VON MEETING 
-    
+    const isWekanShowing = getWekanShowing();
+    const isDrawioShowing = getDrawioShowing();
+
     this.state = {
-      isDrawioRunning: false,
-      isWekanRunning: false,
+      isDrawioRunning: isDrawioShowing,
+      isWekanRunning: isWekanShowing ? true : false,
     };
 
     this.handleIsDrawioRunning = this.handleIsDrawioRunning.bind(this);
-    this.handleisWekanRunningRunning = this.handleisWekanRunningRunning.bind(this);  
+    this.handleisWekanRunning = this.handleisWekanRunning.bind(this);
     this.handleDrawio = this.handleDrawio.bind(this);
   }
 
   handleIsDrawioRunning(isRunning) {
-    this.setState({isDrawioRunning: isRunning});
+    this.setState({ isDrawioRunning: isRunning });
   }
 
-  handleisWekanRunningRunning(isRunning) {
-    this.setState({isWekanRunning: isRunning});
+  handleisWekanRunning(isRunning) {
+    this.setState({ isWekanRunning: isRunning });
   }
 
 
@@ -136,9 +138,9 @@ class ActionsDropdown extends PureComponent {
     //const { enabled: drawioEnabled } = Meteor.settings.public.drawio;
     //Meteor.settings.public.drawio.enabled = !drawioEnabled;
     // check if presenter
-    const {isDrawioRunning} = this.state;
+    const { isDrawioRunning } = this.state;
 
-    if(isDrawioRunning) {
+    if (isDrawioRunning) {
       stopDrawio();
       this.handleIsDrawioRunning(false);
     } else {
@@ -146,8 +148,24 @@ class ActionsDropdown extends PureComponent {
       this.handleIsDrawioRunning(true);
     }
 
-    
+
     MediaService.toggleSwapLayout();
+  }
+
+  handleWekan() {
+    const {
+      mountModal,
+    } = this.props;
+
+    const { isWekanRunning } = this.state;
+
+    if (isWekanRunning) {
+      stopWekan();
+      this.handleisWekanRunning(false);
+    } else {
+      mountModal(<WekanModal handleisWekanRunning={this.handleisWekanRunning} />);
+      //this.handleisWekanRunning(true);
+    }
   }
 
   getAvailableActions() {
@@ -249,11 +267,11 @@ class ActionsDropdown extends PureComponent {
         ? (
           <DropdownListItem
             icon="user"
-              // label={intl.formatMessage(intlMessages.selectWekanLabel)}
+            // label={intl.formatMessage(intlMessages.selectWekanLabel)}
             label={isWekanRunning ? 'Stop Wekan' : 'Start Wekan'}
             description="WEKAN"
             key="wekan"
-            onClick={() => mountModal(<WekanModal />)}
+            onClick={() => this.handleWekan()}
           />
         )
         : null),
@@ -262,11 +280,11 @@ class ActionsDropdown extends PureComponent {
           <DropdownListItem
             icon="user"
             label={isDrawioRunning ? 'Stop Drawio' : 'Start Drawio'}
-              // if drawio is sharing then stop drawio label if not then start drawio
-              // label={intl.formatMessage(intlMessages.selectDrawioLabel)}
+            // if drawio is sharing then stop drawio label if not then start drawio
+            // label={intl.formatMessage(intlMessages.selectDrawioLabel)}
             description="drawio"
             key="drawio"
-              // onclick if drawio is sharing then stopDrawio, if not then start
+            // onclick if drawio is sharing then stopDrawio, if not then start
             onClick={() => this.handleDrawio()}
           />
         )

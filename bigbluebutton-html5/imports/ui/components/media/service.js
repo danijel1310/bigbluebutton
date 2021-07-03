@@ -2,6 +2,7 @@ import Presentations from '/imports/api/presentations';
 import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service';
 import { getVideoUrl } from '/imports/ui/components/external-video-player/service';
 import { getDrawioShowing } from '/imports/ui/components/drawio/service';
+import { getWekanShowing } from '/imports/ui/components/wekan/service';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
 import Settings from '/imports/ui/services/settings';
@@ -47,6 +48,10 @@ function shouldShowDrawio() {
   return getDrawioShowing();
 }
 
+function shouldShowWekan() {
+  return getWekanShowing();
+}
+
 const swapLayout = {
   value: getFromUserSettings('bbb_auto_swap_layout', LAYOUT_CONFIG.autoSwapLayout),
   tracker: new Tracker.Dependency(),
@@ -77,6 +82,7 @@ export default {
   shouldShowExternalVideo,
   shouldShowOverlay,
   shouldShowDrawio,
+  shouldShowWekan,
   isUserPresenter,
   isVideoBroadcasting,
   toggleSwapLayout,

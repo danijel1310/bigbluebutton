@@ -1,3 +1,6 @@
+import { makeCall } from '/imports/ui/services/api';
+import Auth from '/imports/ui/services/auth';
+import Meetings from "../../../api/meetings";
 /* import Auth from '/imports/ui/services/auth';
 
 
@@ -5,6 +8,21 @@ export const wekanLogin = () => {
     const meeting = Auth.fullInfo;
     console.log(meeting);
 } */
+export const startWekan = (wekanUrl) => {
+    makeCall('startShowingWekan', { wekanUrl });
+};
+
+export const stopWekan = () => {
+    makeCall('stopShowingWekan');
+};
+
+export const getWekanShowing = () => {
+    const meetingId = Auth.meetingID;
+    const meeting = Meetings.findOne({ meetingId }, { fields: { wekanUrl: 1 } });
+
+    return meeting && meeting.wekanUrl;
+};
+
 const getAdmintoken = async () => {
     const adminUser = await login("admin", "implUser");
 

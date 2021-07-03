@@ -3,19 +3,32 @@ import Auth from '/imports/ui/services/auth';
 
 import { makeCall } from '/imports/ui/services/api';
 
-const startShowDrawio = () => {
+const syncFetch = () => {
     // instead of making makeCall on meteor (backend) just display
-    demo();
+    const syncFetching = true;
+    
+    setTimeout(() => {
+        const iframe = document.getElementById('draw-io-iframe').contentWindow;
+        elements = iframe.document.getElementsByClassName('geButton');
+
+        for (let i = 0; i < elements.length; i++) {
+            if (elements[i].title == 'Online' || elements[i].title == 'Disconnected') {
+                eTitle = elements[i];
+                eTitle.click();
+            }
+        }
+        if (syncFetching) {
+            syncFetch();
+        }
+    }, 3000);
 };
 
 const getDrawioShowing = () => {
     const meetingId = Auth.meetingID;
     const meeting = Meetings.findOne({ meetingId }, { fields: { showingDrawio: 1 } });
 
-    console.log(meeting);
-
     return meeting && meeting.showingDrawio;
-}
+};
 
 const startDrawio = () => {
     let showingDrawio = true;
@@ -34,26 +47,11 @@ const readMeeting = () => {
 }
 
 function demo() {
-    const syncFetch = true;
-    startDrawio();
-    setTimeout(() => {
-        const iframe = document.getElementById('draw-io-iframe').contentWindow;
-        elements = iframe.document.getElementsByClassName('geButton');
-
-        for (let i = 0; i < elements.length; i++) {
-            if (elements[i].title == 'Online' || elements[i].title == 'Disconnected') {
-                eTitle = elements[i];
-                eTitle.click();
-            }
-        }
-        if (syncFetch) {
-            demo();
-        }
-    }, 3000);
+    
 }
 
 export {
-    startShowDrawio,
+    syncFetch,
     getDrawioShowing,
     startDrawio,
     stopDrawio,

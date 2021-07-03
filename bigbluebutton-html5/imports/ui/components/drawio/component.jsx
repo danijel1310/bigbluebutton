@@ -2,27 +2,17 @@ import React, { Component } from 'react';
 import { injectIntl } from 'react-intl';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import ReactDOM from 'react-dom';
-import { startShowDrawio, readMeeting } from './service';
+import { syncFetch } from './service';
 import { styles } from './styles';
 
 class Drawio extends Component {
   constructor(props) {
     super(props);
-
-    this.handleResize = this.handleResize.bind(this);
-
+    //this.handleResize = this.handleResize.bind(this);
+    syncFetch();
     this.state = {
       height: 0,
     };
-  }
-
-  componentDidMount() {
-    // const height = this.divElement.clientHeight;
-    // this.setState({ height });
-  }
-
-  handleResize() {
-
   }
 
 
@@ -32,23 +22,23 @@ class Drawio extends Component {
     return (
 
       <div
-                // id="draw-io"
-                // data-test="drawio"
-                // ref={(divElement) => { this.divElement = divElement }}
+        // id="draw-io"
+        // data-test="drawio"
+        // ref={(divElement) => { this.divElement = divElement }}
         style={{ width: '100%', height: '100%', overflow: 'visible' }}
       >
-        <button
+        {/* <button
           id="get_token"
           onClick={startShowDrawio}
         >
-Get Token
+          Get Token
         </button>
         <button
           id="get_meeting"
           onClick={readMeeting}
         >
-  read
-        </button>
+          read
+        </button> */}
         <iframe
           id="draw-io-iframe"
           style={{ width: '100%', height: '100%', overflow: 'visible' }}
