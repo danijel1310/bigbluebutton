@@ -25,6 +25,9 @@ const syncFetch = () => {
 
 const getDrawioShowing = () => {
     const meetingId = Auth.meetingID;
+    const prntMeeting = Meetings.findOne({meetingId});
+    console.log(prntMeeting);
+
     const meeting = Meetings.findOne({ meetingId }, { fields: { showingDrawio: 1 } });
 
     return meeting && meeting.showingDrawio;

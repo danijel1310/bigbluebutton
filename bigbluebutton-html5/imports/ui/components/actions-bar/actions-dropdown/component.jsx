@@ -144,6 +144,7 @@ class ActionsDropdown extends PureComponent {
       stopDrawio();
       this.handleIsDrawioRunning(false);
     } else {
+      alert('To use drawio please login on onedrive with the following credentials: username: pfaender.drawio@hotmail.com, password: Fairteaching');
       startDrawio();
       this.handleIsDrawioRunning(true);
     }
@@ -266,7 +267,7 @@ class ActionsDropdown extends PureComponent {
       (amIPresenter
         ? (
           <DropdownListItem
-            icon="user"
+            icon="presentation"
             // label={intl.formatMessage(intlMessages.selectWekanLabel)}
             label={isWekanRunning ? 'Stop Wekan' : 'Start Wekan'}
             description="WEKAN"
